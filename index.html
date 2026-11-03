@@ -1987,11 +1987,29 @@
     let currentInd = 'All Industries';
     let currentQuery = '';
 
+    // Helper to resolve asset URLs across root, custom domain, or GitHub Pages subpath
+    const BASE_PATH = (function() {
+      if (window.location.pathname.startsWith('/AAIM-Studio-Hub')) {
+        return '/AAIM-Studio-Hub/';
+      }
+      return './';
+    })();
+
+    function getAssetUrl(relPath) {
+      if (!relPath) return '';
+      if (relPath.startsWith('http://') || relPath.startsWith('https://') || relPath.startsWith('//') || relPath.startsWith('data:')) {
+        return relPath;
+      }
+      return BASE_PATH + relPath.replace(/^\.?\//, '');
+    }
+
     // Card template generator with Light Glassmorphism
     function createCard(item) {
+      const srcUrl = getAssetUrl(item.src);
+      const posterUrl = item.poster ? getAssetUrl(item.poster) : '';
       const mediaMarkup = item.kind === 'vid'
-        ? `<video controls preload="none" poster="${item.poster}" src="${item.src}" playsinline></video>`
-        : `<img loading="lazy" src="${item.src}" alt="${item.title}" data-full="${item.src}">
+        ? `<video controls preload="none" poster="${posterUrl}" src="${srcUrl}" playsinline></video>`
+        : `<img loading="lazy" src="${srcUrl}" alt="${item.title}" data-full="${srcUrl}">
            <div class="zoom-badge">
              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
            </div>`;
